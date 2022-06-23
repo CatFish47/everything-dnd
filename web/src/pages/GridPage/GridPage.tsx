@@ -1,24 +1,10 @@
 import { MetaTags } from '@redwoodjs/web'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Stage, Layer, RegularPolygon, Text } from 'react-konva'
+import Honeycomb from 'src/components/Honeycomb/Honeycomb';
 
 const GridPage = () => {
   const dimensions = useWindowSize();
-  // const [dimensions, setDimensions] = useState({
-  //   width: window.innerWidth,
-  //   height: window.innerHeight,
-  // })
-
-  // useEffect(() => {
-  //   updateSize()
-  // }, [])
-
-  // const updateSize = () => {
-  //   setDimensions({
-  //     width: window.innerWidth,
-  //     height: window.innerHeight
-  //   })
-  // }
 
   return (
     <>
@@ -26,18 +12,12 @@ const GridPage = () => {
 
       <div className="w-screen h-screen grid grid-cols-4">
         <Stage
-          width={(dimensions.width * 3) / 4}
+          width={dimensions.width}
           height={dimensions.height}
           className="col-span-3"
         >
           <Layer>
-            <RegularPolygon
-              sides={6}
-              radius={50}
-              fill={`blue`}
-              x={100}
-              y={100}
-            />
+            <Honeycomb gridSize={3} tileSize={50} x={100} y={100} xMax={dimensions.width} yMax={dimensions.height} />
           </Layer>
         </Stage>
         <div className="bg-gray-100">
@@ -64,9 +44,9 @@ function useWindowSize() {
     function handleResize() {
       // Set window width/height to state
       setWindowSize({
-        width: window.innerWidth,
+        width: (window.innerWidth * 3) / 4,
         height: window.innerHeight,
-      });
+      })
     }
     // Add event listener
     window.addEventListener("resize", handleResize);
