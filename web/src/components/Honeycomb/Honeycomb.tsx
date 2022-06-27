@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import Tile from 'src/components/Honeycomb/Tile'
+import keyGen from 'src/utilities/keygen'
+import { TileGridInfo } from 'src/utilities/TileInfo'
 
 type HoneycombProps = {
   gridSize: number
@@ -8,10 +10,23 @@ type HoneycombProps = {
   y: number
   xMax: number
   yMax: number
+  onTileClick: (e: any, q: number, r: number, s: number) => void
+  tileInfos: TileGridInfo,
+  defaultFill: string
 }
 
 const Honeycomb = (props: HoneycombProps) => {
-  const { gridSize, tileSize, x, y, xMax, yMax } = props
+  const {
+    gridSize,
+    tileSize,
+    x,
+    y,
+    xMax,
+    yMax,
+    onTileClick: handleTileClick,
+    tileInfos,
+    defaultFill
+  } = props
   const [tileGrid, setTileGrid] = useState([])
 
   const a = (Math.sqrt(3) / 2) * tileSize
@@ -29,7 +44,7 @@ const Honeycomb = (props: HoneycombProps) => {
               {
                 q,
                 r,
-                s
+                s,
               },
             ])
           }
@@ -53,6 +68,9 @@ const Honeycomb = (props: HoneycombProps) => {
         //   return
         // }
 
+        const key = keyGen(item.q, item.r, item.s, gridSize)
+        const fill = !tileInfos[key] ? defaultFill : tileInfos[key]["fill"]
+
         return (
           <Tile
             radius={tileSize}
@@ -61,8 +79,9 @@ const Honeycomb = (props: HoneycombProps) => {
             q={item.q}
             r={item.r}
             s={item.s}
-            fill={"#888"}
-            key={keyGen(item.q, item.r, item.s, gridSize)}
+            fill={fill}
+            key={key}
+            onTileClick={handleTileClick}
           />
         )
       })}
@@ -70,12 +89,12 @@ const Honeycomb = (props: HoneycombProps) => {
   )
 }
 
-function keyGen(q: number, r: number, s: number, gridSize: number) {
-  const newQ = q + gridSize
-  const newR = r + gridSize
-  const newS = s + gridSize
+// function keyGen(q: number, r: number, s: number, gridSize: number) {
+//   const newQ = q + gridSize
+//   const newR = r + gridSize
+//   const newS = s + gridSize
 
-  return `${newQ}${newR}${newS}`
-}
+//   return `${newQ}${newR}${newS}`
+// }
 
 export default Honeycomb

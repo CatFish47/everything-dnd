@@ -2,6 +2,7 @@ import { MetaTags } from '@redwoodjs/web'
 import { useEffect, useState } from 'react'
 import { Stage, Layer } from 'react-konva'
 import Honeycomb from 'src/components/Honeycomb/Honeycomb'
+import keyGen from 'src/utilities/keygen'
 
 const GridPage = () => {
   const dimensions = useWindowSize()
@@ -9,12 +10,18 @@ const GridPage = () => {
   const [stageProps, setStageProps] = useState({
     scaleX: 1,
     scaleY: 1,
+    draggable: true,
   })
 
+  const [tileInfos, setTileInfos] = useState({})
+  const [defaultFill, setDefaultFill] = useState('#888')
+
   const [editMode, setEditMode] = useState(false)
+  const [brushColor, setBrushColor] = useState("#000000")
+  const [gridSize, setGridSize] = useState(3)
 
   const { width, height } = dimensions
-  const { scaleX, scaleY } = stageProps
+  const { scaleX, scaleY, draggable } = stageProps
   const scaleBy = 1.1
 
   // Taken from https://konvajs.org/docs/sandbox/Zooming_Relative_To_Pointer.html
@@ -44,10 +51,11 @@ const GridPage = () => {
     var newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy
 
     // stage.scale({ x: newScale, y: newScale })
-    setStageProps({
+    setStageProps((prevState) => ({
+      ...prevState,
       scaleX: newScale,
       scaleY: newScale,
-    })
+    }))
 
     var newPos = {
       x: pointer.x - mousePointTo.x * newScale,
@@ -60,6 +68,23 @@ const GridPage = () => {
     setEditMode((prevState) => !prevState)
   }
 
+  const handleTileClick = (e: any, q: number, r: number, s: number) => {
+    if (editMode) {
+      setTileInfos((prevState) => {
+        let newState = {
+          ...prevState,
+        }
+        newState[keyGen(q, r, s, gridSize)] = { fill: brushColor }
+
+        return newState
+      })
+    }
+  }
+
+  const handleColorChange = (e: any) => {
+    setBrushColor(e.target.value)
+  }
+
   return (
     <>
       <MetaTags title="Grid" description="Grid page" />
@@ -69,19 +94,22 @@ const GridPage = () => {
           width={width}
           height={height}
           className="col-span-3"
-          draggable={true}
+          draggable={draggable}
           onWheel={handleScroll}
           scaleX={scaleX}
           scaleY={scaleY}
         >
           <Layer>
             <Honeycomb
-              gridSize={3}
+              gridSize={gridSize}
               tileSize={50}
               x={width / 2}
               y={height / 2}
               xMax={width}
               yMax={height}
+              onTileClick={handleTileClick}
+              tileInfos={tileInfos}
+              defaultFill={defaultFill}
             />
           </Layer>
         </Stage>
@@ -98,7 +126,9 @@ const GridPage = () => {
             />
             <label className="mx-3">Edit Mode</label>
           </div>
+
           <div className="divider" />
+
           <div
             tabIndex={0}
             className={`collapse ${
@@ -113,7 +143,42 @@ const GridPage = () => {
               editMode ? 'collapse-open' : 'collapse-close'
             }`}
           >
-            <div className="collapse-content">Edit Mode</div>
+            <div className="collapse-content">
+              {/*
+                Things to add:
+                  Dropdown for map presets
+                  Text input for gridsize
+                  Toggle button to show/hide characters on top
+
+                  Button group for tool mode (select, brush, fill (add later))
+                  Color picker/text input for color
+
+               */}
+
+              {/* <div className="btn-group">
+                <input
+                  type="radio"
+                  name="tool"
+                  className="btn"
+                  data-title="Pointer"
+                  checked={true}
+                />
+                <input
+                  type="radio"
+                  name="tool"
+                  className="btn"
+                  data-title="Brush"
+                />
+              </div> */}
+              <div className="flex">
+                <input
+                  type="color"
+                  onChange={handleColorChange}
+                  className="mx-3"
+                />
+                <span className="mx-3">Color</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
