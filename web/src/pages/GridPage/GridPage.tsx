@@ -140,18 +140,11 @@ const GridPage = () => {
           </Layer>
         </Stage>
         <div className="bg-gray-100 flex flex-col items-start p-3">
-          <div className="self-center">
-            <h1 className="text-3xl m-3">Menu</h1>
-          </div>
-          <div className="flex self-center">
-            <label className="mx-3">Normal Mode</label>
-            <input
-              type="checkbox"
-              className="toggle toggle-primary mx-3"
-              onChange={handleModeToggle}
-            />
-            <label className="mx-3">Edit Mode</label>
-          </div>
+          <label className="swap self-center place-items-center text-2xl">
+            <input type="checkbox" onClick={handleModeToggle} />
+            <div className="swap-off">Normal Mode</div>
+            <div className="swap-on">Edit Mode</div>
+          </label>
 
           <div className="divider" />
 
