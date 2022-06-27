@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Stage, Layer } from 'react-konva'
 import Honeycomb from 'src/components/Honeycomb/Honeycomb'
 import keyGen from 'src/utilities/keygen'
+import useWindowSize from 'src/utilities/useWindowSize'
 
 const GridPage = () => {
   const dimensions = useWindowSize()
@@ -17,8 +18,16 @@ const GridPage = () => {
   const [defaultFill, setDefaultFill] = useState('#888')
 
   const [editMode, setEditMode] = useState(false)
-  const [brushColor, setBrushColor] = useState("#000000")
+  const [brushColor, setBrushColor] = useState('#000000')
   const [gridSize, setGridSize] = useState(3)
+
+  const TOOLS = {
+    pointer: 'pointer',
+    brush: 'brush',
+    pan: 'pan',
+    erase: 'erase',
+  }
+  const [toolMode, setToolMode] = useState(TOOLS.pointer)
 
   const { width, height } = dimensions
   const { scaleX, scaleY, draggable } = stageProps
@@ -70,19 +79,36 @@ const GridPage = () => {
 
   const handleTileClick = (e: any, q: number, r: number, s: number) => {
     if (editMode) {
-      setTileInfos((prevState) => {
-        let newState = {
-          ...prevState,
-        }
-        newState[keyGen(q, r, s, gridSize)] = { fill: brushColor }
+      if (toolMode === TOOLS.brush) {
+        setTileInfos((prevState) => {
+          let newState = {
+            ...prevState,
+          }
+          newState[keyGen(q, r, s, gridSize)] = { fill: brushColor }
 
-        return newState
-      })
+          return newState
+        })
+      }
+
+      if (toolMode === TOOLS.erase) {
+        setTileInfos((prevState) => {
+          let newState = {
+            ...prevState,
+          }
+          newState[keyGen(q, r, s, gridSize)] = null
+
+          return newState
+        })
+      }
     }
   }
 
-  const handleColorChange = (e: any) => {
+  const handleBrushColorChange = (e: any) => {
     setBrushColor(e.target.value)
+  }
+
+  const handleDefaultColorChange = (e: any) => {
+    setDefaultFill(e.target.value)
   }
 
   return (
@@ -94,7 +120,7 @@ const GridPage = () => {
           width={width}
           height={height}
           className="col-span-3"
-          draggable={draggable}
+          draggable={toolMode === TOOLS.pan}
           onWheel={handleScroll}
           scaleX={scaleX}
           scaleY={scaleY}
@@ -131,7 +157,7 @@ const GridPage = () => {
 
           <div
             tabIndex={0}
-            className={`collapse ${
+            className={`w-full collapse ${
               !editMode ? 'collapse-open' : 'collapse-close'
             }`}
           >
@@ -139,7 +165,7 @@ const GridPage = () => {
           </div>
           <div
             tabIndex={0}
-            className={`collapse ${
+            className={`w-full collapse ${
               editMode ? 'collapse-open' : 'collapse-close'
             }`}
           >
@@ -155,28 +181,60 @@ const GridPage = () => {
 
                */}
 
-              {/* <div className="btn-group">
+              <div className="btn-group justify-center mb-5">
                 <input
                   type="radio"
                   name="tool"
                   className="btn"
                   data-title="Pointer"
-                  checked={true}
+                  onClick={() => {
+                    setToolMode(TOOLS.pointer)
+                  }}
+                  defaultChecked={true}
+                />
+                <input
+                  type="radio"
+                  name="tool"
+                  className="btn"
+                  data-title="Pan"
+                  onClick={() => {
+                    setToolMode(TOOLS.pan)
+                  }}
                 />
                 <input
                   type="radio"
                   name="tool"
                   className="btn"
                   data-title="Brush"
+                  onClick={() => {
+                    setToolMode(TOOLS.brush)
+                  }}
                 />
-              </div> */}
+                <input
+                  type="radio"
+                  name="tool"
+                  className="btn"
+                  data-title="Erase"
+                  onClick={() => {
+                    setToolMode(TOOLS.erase)
+                  }}
+                />
+              </div>
               <div className="flex">
                 <input
                   type="color"
-                  onChange={handleColorChange}
+                  onChange={handleDefaultColorChange}
                   className="mx-3"
                 />
-                <span className="mx-3">Color</span>
+                <span className="mx-3">Background Color</span>
+              </div>
+              <div className="flex">
+                <input
+                  type="color"
+                  onChange={handleBrushColorChange}
+                  className="mx-3"
+                />
+                <span className="mx-3">Brush Color</span>
               </div>
             </div>
           </div>
@@ -184,34 +242,6 @@ const GridPage = () => {
       </div>
     </>
   )
-}
-
-// Taken from https://usehooks.com/useWindowSize/
-// Hook
-function useWindowSize() {
-  // Initialize state with undefined width/height so server and client renders match
-  // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
-  const [windowSize, setWindowSize] = useState({
-    width: undefined,
-    height: undefined,
-  })
-  useEffect(() => {
-    // Handler to call on window resize
-    function handleResize() {
-      // Set window width/height to state
-      setWindowSize({
-        width: (window.innerWidth * 3) / 4,
-        height: window.innerHeight,
-      })
-    }
-    // Add event listener
-    window.addEventListener('resize', handleResize)
-    // Call handler right away so state gets updated with initial window size
-    handleResize()
-    // Remove event listener on cleanup
-    return () => window.removeEventListener('resize', handleResize)
-  }, []) // Empty array ensures that effect is only run on mount
-  return windowSize
 }
 
 export default GridPage
