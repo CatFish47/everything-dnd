@@ -14,11 +14,11 @@ const Honeycomb = (props: HoneycombProps) => {
   const { gridSize, tileSize, x, y, xMax, yMax } = props
   const [tileGrid, setTileGrid] = useState([])
 
+  const a = (Math.sqrt(3) / 2) * tileSize
+  const b = (3 / 4) * tileSize
+
   useEffect(() => {
     setTileGrid([])
-
-    const a = (Math.sqrt(3) / 2) * tileSize
-    const b = (3 / 4) * tileSize
 
     for (let q = -gridSize; q <= gridSize; q++) {
       for (let r = -gridSize; r <= gridSize; r++) {
@@ -29,38 +29,39 @@ const Honeycomb = (props: HoneycombProps) => {
               {
                 q,
                 r,
-                s,
-                x: x + a * q - a * s,
-                y: y - b * q + b * r - b * s,
+                s
               },
             ])
           }
         }
       }
     }
-  }, [props])
+  }, [gridSize])
 
   console.log(tileGrid)
 
   return (
     <>
       {tileGrid.map((item) => {
-        if (
-          item.x + tileSize < 0 ||
-          item.y + tileSize < 0 ||
-          item.x - tileSize > xMax ||
-          item.y - tileSize > yMax
-        ) {
-          return
-        }
+        const xTile = x + a * item.q - a * item.s
+        const yTile = y - b * item.q + b * item.r - b * item.s
+
+        // if (
+        //   xTile + tileSize < 0 ||
+        //   yTile + tileSize < 0 ||
+        //   xTile - tileSize > xMax ||
+        //   yTile - tileSize > yMax
+        // ) {
+        //   return
+        // }
 
         return (
           <RegularPolygon
             sides={6}
             radius={tileSize}
             fill={randomColor()}
-            x={item.x}
-            y={item.y}
+            x={xTile}
+            y={yTile}
             key={keyGen(item.q, item.r, item.s, gridSize)}
           />
         )
