@@ -1,6 +1,6 @@
 import { MetaTags } from '@redwoodjs/web'
 import { useEffect, useState } from 'react'
-import { Stage, Layer, RegularPolygon, Text } from 'react-konva'
+import { Stage, Layer } from 'react-konva'
 import Honeycomb from 'src/components/Honeycomb/Honeycomb'
 
 const GridPage = () => {
@@ -11,14 +11,14 @@ const GridPage = () => {
     scaleY: 1,
   })
 
+  const [editMode, setEditMode] = useState(false)
+
   const { width, height } = dimensions
   const { scaleX, scaleY } = stageProps
   const scaleBy = 1.1
 
   // Taken from https://konvajs.org/docs/sandbox/Zooming_Relative_To_Pointer.html
   const handleScroll = (e: any) => {
-    console.log(e)
-
     // stop default scrolling
     e.evt.preventDefault()
 
@@ -56,6 +56,10 @@ const GridPage = () => {
     stage.position(newPos)
   }
 
+  const handleModeToggle = () => {
+    setEditMode((prevState) => !prevState)
+  }
+
   return (
     <>
       <MetaTags title="Grid" description="Grid page" />
@@ -81,9 +85,35 @@ const GridPage = () => {
             />
           </Layer>
         </Stage>
-        <div className="bg-gray-100">
-          <div className="m-3">
-            <h1 className="text-3xl text-center">Menu</h1>
+        <div className="bg-gray-100 flex flex-col items-start p-3">
+          <div className="self-center">
+            <h1 className="text-3xl m-3">Menu</h1>
+          </div>
+          <div className="flex self-center">
+            <label className="mx-3">Normal Mode</label>
+            <input
+              type="checkbox"
+              className="toggle toggle-primary mx-3"
+              onChange={handleModeToggle}
+            />
+            <label className="mx-3">Edit Mode</label>
+          </div>
+          <div className="divider" />
+          <div
+            tabIndex={0}
+            className={`collapse ${
+              !editMode ? 'collapse-open' : 'collapse-close'
+            }`}
+          >
+            <div className="collapse-content">Normal Mode</div>
+          </div>
+          <div
+            tabIndex={0}
+            className={`collapse ${
+              editMode ? 'collapse-open' : 'collapse-close'
+            }`}
+          >
+            <div className="collapse-content">Edit Mode</div>
           </div>
         </div>
       </div>

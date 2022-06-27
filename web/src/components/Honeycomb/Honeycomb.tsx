@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { RegularPolygon } from 'react-konva'
+import Tile from 'src/components/Honeycomb/Tile'
 
 type HoneycombProps = {
   gridSize: number
@@ -38,8 +38,6 @@ const Honeycomb = (props: HoneycombProps) => {
     }
   }, [gridSize])
 
-  console.log(tileGrid)
-
   return (
     <>
       {tileGrid.map((item) => {
@@ -56,45 +54,20 @@ const Honeycomb = (props: HoneycombProps) => {
         // }
 
         return (
-          <RegularPolygon
-            sides={6}
+          <Tile
             radius={tileSize}
-            fill={randomColor()}
             x={xTile}
             y={yTile}
+            q={item.q}
+            r={item.r}
+            s={item.s}
+            fill={"#888"}
             key={keyGen(item.q, item.r, item.s, gridSize)}
           />
         )
       })}
     </>
   )
-}
-
-function randomColor() {
-  const hex = [
-    '0',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    'a',
-    'b',
-    'c',
-    'd',
-    'e',
-    'f',
-  ]
-
-  return `#${randInt(hex.length)}${randInt(hex.length)}${randInt(hex.length)}`
-}
-
-function randInt(max: number) {
-  return Math.floor(Math.random() * max)
 }
 
 function keyGen(q: number, r: number, s: number, gridSize: number) {
