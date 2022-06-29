@@ -8,6 +8,16 @@ import useWindowSize from 'src/utilities/useWindowSize'
 const GridPage = () => {
   const dimensions = useWindowSize()
 
+  const [charsInfo, setCharsInfo] = useState({
+    testPlayer: {
+      fill: '#a0f',
+      isPlayer: true,
+      q: 1,
+      r: -1,
+      s: 0,
+    },
+  })
+
   const [stageProps, setStageProps] = useState({
     scaleX: 1,
     scaleY: 1,
@@ -92,9 +102,7 @@ const GridPage = () => {
 
       if (toolMode === TOOLS.erase) {
         setTileInfos((prevState) => {
-          let newState = {
-            ...prevState,
-          }
+          let newState = { ...prevState }
           newState[keyGen(q, r, s, gridSize)] = null
 
           return newState
@@ -111,6 +119,26 @@ const GridPage = () => {
     setDefaultFill(e.target.value)
   }
 
+  const handlePlayerMove = (
+    e: any,
+    name: string,
+    q: number,
+    r: number,
+    s: number
+  ) => {
+    setCharsInfo((prevState) => {
+      let newState = { ...prevState }
+      newState[name] = {
+        ...newState[name],
+        q,
+        r,
+        s,
+      }
+
+      return newState
+    })
+  }
+
   return (
     <>
       <MetaTags title="Grid" description="Grid page" />
@@ -124,18 +152,22 @@ const GridPage = () => {
           onWheel={handleScroll}
           scaleX={scaleX}
           scaleY={scaleY}
+          offsetX={-width / 2}
+          offsetY={-height / 2}
         >
           <Layer>
             <Honeycomb
               gridSize={gridSize}
               tileSize={50}
-              x={width / 2}
-              y={height / 2}
+              x={0}
+              y={0}
               xMax={width}
               yMax={height}
               onTileClick={handleTileClick}
+              onPlayerMove={handlePlayerMove}
               tileInfos={tileInfos}
               defaultFill={defaultFill}
+              charsInfo={charsInfo}
             />
           </Layer>
         </Stage>

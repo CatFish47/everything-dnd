@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import Tile from 'src/components/Honeycomb/Tile'
 import keyGen from 'src/utilities/keygen'
 import { TileGridInfo } from 'src/utilities/TileInfo'
+import { CharactersInfo } from 'src/utilities/CharactersInfo'
+import Player from 'src/components/Honeycomb/Player'
 
 type HoneycombProps = {
   gridSize: number
@@ -11,8 +13,10 @@ type HoneycombProps = {
   xMax: number
   yMax: number
   onTileClick: (e: any, q: number, r: number, s: number) => void
-  tileInfos: TileGridInfo,
+  onPlayerMove: (e: any, name: string, q: number, r: number, s: number) => void
+  tileInfos: TileGridInfo
   defaultFill: string
+  charsInfo: CharactersInfo
 }
 
 const Honeycomb = (props: HoneycombProps) => {
@@ -24,8 +28,10 @@ const Honeycomb = (props: HoneycombProps) => {
     xMax,
     yMax,
     onTileClick: handleTileClick,
+    onPlayerMove: handlePlayerMove,
     tileInfos,
-    defaultFill
+    defaultFill,
+    charsInfo,
   } = props
   const [tileGrid, setTileGrid] = useState([])
 
@@ -69,7 +75,7 @@ const Honeycomb = (props: HoneycombProps) => {
         // }
 
         const key = keyGen(item.q, item.r, item.s, gridSize)
-        const fill = !tileInfos[key] ? defaultFill : tileInfos[key]["fill"]
+        const fill = !tileInfos[key] ? defaultFill : tileInfos[key]['fill']
 
         return (
           <Tile
@@ -82,6 +88,30 @@ const Honeycomb = (props: HoneycombProps) => {
             fill={fill}
             key={key}
             onTileClick={handleTileClick}
+          />
+        )
+      })}
+
+      {Object.entries(charsInfo).map((entry) => {
+        const charName = entry[0]
+        const charInfo = entry[1]
+
+        const xTile = x + a * charInfo.q - a * charInfo.s
+        const yTile = y - b * charInfo.q + b * charInfo.r - b * charInfo.s
+
+        return (
+          <Player
+            radius={tileSize}
+            x={xTile}
+            y={yTile}
+            q={charInfo.q}
+            r={charInfo.r}
+            s={charInfo.s}
+            fill={charInfo.fill}
+            name={charName}
+            key={charName}
+            onTileClick={handleTileClick}
+            onPlayerMove={handlePlayerMove}
           />
         )
       })}
