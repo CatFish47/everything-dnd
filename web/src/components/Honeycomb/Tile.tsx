@@ -21,7 +21,7 @@ const Tile = (props: TileProps) => {
   return (
     <RegularPolygon
       sides={6}
-      radius={radius}
+      radius={radius * 0.99}
       fill={fill}
       x={x}
       y={y}

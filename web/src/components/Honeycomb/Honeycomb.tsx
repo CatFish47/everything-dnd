@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Tile from 'src/components/Honeycomb/Tile'
-import keyGen from 'src/utilities/keygen'
+import keyGen from 'src/utilities/honeycombUtils'
 import { TileGridInfo } from 'src/utilities/TileInfo'
 import { CharactersInfo } from 'src/utilities/CharactersInfo'
 import Player from 'src/components/Honeycomb/Player'

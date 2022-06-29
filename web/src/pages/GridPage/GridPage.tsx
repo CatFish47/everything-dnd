@@ -2,7 +2,7 @@ import { MetaTags } from '@redwoodjs/web'
 import { useEffect, useState } from 'react'
 import { Stage, Layer } from 'react-konva'
 import Honeycomb from 'src/components/Honeycomb/Honeycomb'
-import keyGen from 'src/utilities/keygen'
+import keyGen from 'src/utilities/honeycombUtils'
 import useWindowSize from 'src/utilities/useWindowSize'
 
 const GridPage = () => {
@@ -15,6 +15,13 @@ const GridPage = () => {
       q: 1,
       r: -1,
       s: 0,
+    },
+    grant: {
+      fill: '#af0',
+      isPlayer: true,
+      q: -1,
+      r: -1,
+      s: 2,
     },
   })
 
