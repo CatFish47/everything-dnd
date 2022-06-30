@@ -121,6 +121,7 @@ const Honeycomb = (props: HoneycombProps) => {
             onPlayerMove={handlePlayerMove}
             onPlayerMouseIn={handleCharMouseIn}
             onPlayerMouseOut={handleCharMouseOut}
+            playerInfo={charInfo}
           />
         )
       })}

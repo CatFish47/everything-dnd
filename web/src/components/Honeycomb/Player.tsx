@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { RegularPolygon } from 'react-konva'
+import { CharInfo } from 'src/types/CharactersInfo'
 import {
   keyGen,
   cartesianToCube,
@@ -8,6 +9,7 @@ import {
   generateLine,
   getTilesInRadius,
 } from 'src/utilities/honeycombUtils'
+import HealthBar from './HealthBar'
 
 type PlayerProps = {
   radius: number
@@ -18,6 +20,7 @@ type PlayerProps = {
   s: number
   fill: string
   name: string
+  playerInfo: CharInfo
   onPlayerClick: (e: any, name: string) => void
   onPlayerMove: (e: any, name: string, q: number, r: number, s: number) => void
   onPlayerMouseIn: (e: any, name: string) => void
@@ -34,6 +37,7 @@ const Player = (props: PlayerProps) => {
     s,
     fill,
     name,
+    playerInfo,
     onPlayerClick: handlePlayerClick,
     onPlayerMove: handlePlayerMove,
     onPlayerMouseIn: handlePlayerMouseIn,
@@ -150,6 +154,13 @@ const Player = (props: PlayerProps) => {
           handlePlayerMouseOut(e, name)
         }}
         ref={ref}
+      />
+      <HealthBar
+        hp={playerInfo.hp}
+        hpMax={playerInfo.maxhp}
+        x={x}
+        y={y}
+        tileRadius={radius}
       />
     </>
   )

@@ -1,6 +1,6 @@
 import { MetaTags } from '@redwoodjs/web'
 import { useEffect, useState } from 'react'
-import { Stage, Layer } from 'react-konva'
+import { Stage, Layer, Rect } from 'react-konva'
 import CharacterCard from 'src/components/Menu/NormalMode/CharacterCard'
 import Honeycomb from 'src/components/Honeycomb/Honeycomb'
 import { CharInfo } from 'src/types/CharactersInfo'
@@ -10,6 +10,7 @@ import { TOOLS } from 'src/utilities/consts'
 import ToolSelection from 'src/components/Menu/EditMode/ToolSelection'
 import NumberInput from 'src/components/Menu/EditMode/NumberInput'
 import ColorPicker from 'src/components/Menu/EditMode/ColorPicker'
+import CharacterActions from 'src/components/Menu/NormalMode/CharacterActions'
 
 const GridPage = () => {
   const dimensions = useWindowSize()
@@ -159,6 +160,34 @@ const GridPage = () => {
     }
   }
 
+  const handleHpChange = (value: number) => {
+    if (!stickyChar) return
+
+    const currHP = charsInfo[stickyChar].hp
+    const maxHP = charsInfo[stickyChar].maxhp
+
+    if (value < 0) {
+      setCharsInfo((prevState) => {
+        let newState = {
+          ...prevState
+        }
+        charsInfo[stickyChar].hp = Math.max(0, currHP + value)
+
+        return newState
+      })
+
+    } else {
+      setCharsInfo((prevState) => {
+        let newState = {
+          ...prevState,
+        }
+        charsInfo[stickyChar].hp = Math.min(maxHP, currHP + value)
+
+        return newState
+      })
+    }
+  }
+
   let currCharInfo: CharInfo
 
   if (currChar) {
@@ -229,6 +258,12 @@ const GridPage = () => {
           >
             <div className="collapse-content">
               {currCharInfo && <CharacterCard charInfo={currCharInfo} />}
+              {currCharInfo && currCharInfo.name === stickyChar && (
+                <>
+                  <div className="divider" />
+                  <CharacterActions onApply={handleHpChange} />
+                </>
+              )}
             </div>
           </div>
           <div
