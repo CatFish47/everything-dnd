@@ -43,6 +43,8 @@ const GridPage = () => {
   const [brushColor, setBrushColor] = useState('#000000')
   const [gridSize, setGridSize] = useState(3)
 
+  const [mouseDown, setMouseDown] = useState(false)
+
   const TOOLS = {
     pointer: 'pointer',
     brush: 'brush',
@@ -99,23 +101,23 @@ const GridPage = () => {
     setEditMode((prevState) => !prevState)
   }
 
-  const handleTileClick = (e: any, q: number, r: number, s: number) => {
+  const handleTileDraw = (e: any, q: number, r: number, s: number) => {
     if (editMode) {
-      if (toolMode === TOOLS.brush) {
+      if (toolMode === TOOLS.brush && mouseDown) {
         setTileInfos((prevState) => {
           let newState = {
             ...prevState,
           }
-          newState[keyGen(q, r, s, gridSize)] = { fill: brushColor }
+          newState[keyGen(q, r, s)] = { fill: brushColor }
 
           return newState
         })
       }
 
-      if (toolMode === TOOLS.erase) {
+      if (toolMode === TOOLS.erase && mouseDown) {
         setTileInfos((prevState) => {
           let newState = { ...prevState }
-          newState[keyGen(q, r, s, gridSize)] = null
+          newState[keyGen(q, r, s)] = null
 
           return newState
         })
@@ -176,6 +178,8 @@ const GridPage = () => {
           scaleY={scaleY}
           offsetX={-width / 2}
           offsetY={-height / 2}
+          onMouseDown={() => setMouseDown(true)}
+          onMouseUp={() => setMouseDown(false)}
         >
           <Layer>
             <Honeycomb
@@ -185,7 +189,7 @@ const GridPage = () => {
               y={0}
               xMax={width}
               yMax={height}
-              onTileClick={handleTileClick}
+              onTileDraw={handleTileDraw}
               onPlayerMove={handlePlayerMove}
               tileInfos={tileInfos}
               defaultFill={defaultFill}

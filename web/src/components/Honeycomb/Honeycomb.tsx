@@ -12,7 +12,7 @@ type HoneycombProps = {
   y: number
   xMax: number
   yMax: number
-  onTileClick: (e: any, q: number, r: number, s: number) => void
+  onTileDraw: (e: any, q: number, r: number, s: number) => void
   onPlayerMove: (e: any, name: string, q: number, r: number, s: number) => void
   onCharMouseIn: (e: any, name: string) => void
   onCharMouseOut: (e: any, name: string) => void
@@ -29,7 +29,7 @@ const Honeycomb = (props: HoneycombProps) => {
     y,
     xMax,
     yMax,
-    onTileClick: handleTileClick,
+    onTileDraw: handleTileDraw,
     onPlayerMove: handlePlayerMove,
     onCharMouseIn: handleCharMouseIn,
     onCharMouseOut: handleCharMouseOut,
@@ -79,7 +79,7 @@ const Honeycomb = (props: HoneycombProps) => {
         //   return
         // }
 
-        const key = keyGen(item.q, item.r, item.s, gridSize)
+        const key = keyGen(item.q, item.r, item.s)
         const fill = !tileInfos[key] ? defaultFill : tileInfos[key]['fill']
 
         return (
@@ -92,7 +92,7 @@ const Honeycomb = (props: HoneycombProps) => {
             s={item.s}
             fill={fill}
             key={key}
-            onTileClick={handleTileClick}
+            onTileDraw={handleTileDraw}
           />
         )
       })}
@@ -115,7 +115,7 @@ const Honeycomb = (props: HoneycombProps) => {
             fill={charInfo.fill}
             name={charName}
             key={charName}
-            onTileClick={handleTileClick}
+            onTileClick={handleTileDraw}
             onPlayerMove={handlePlayerMove}
             onPlayerMouseIn={handleCharMouseIn}
             onPlayerMouseOut={handleCharMouseOut}

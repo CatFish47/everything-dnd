@@ -119,10 +119,10 @@ export function getTilesInRadius(q: number, r: number, s: number, n: number) {
   return possibleTiles
 }
 
-export function keyGen(q: number, r: number, s: number, gridSize: number) {
-  const newQ = +q + +gridSize
-  const newR = +r + +gridSize
-  const newS = +s + +gridSize
+export function keyGen(q: number, r: number, s: number) {
+  const newQ = q
+  const newR = r
+  const newS = s
 
   return `${newQ} ${newR} ${newS}`
 }

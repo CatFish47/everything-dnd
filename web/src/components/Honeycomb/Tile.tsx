@@ -8,14 +8,18 @@ type TileProps = {
   r: number
   s: number
   fill: string
-  onTileClick: (e: any, q: number, r: number, s: number) => void
+  onTileDraw: (e: any, q: number, r: number, s: number) => void
 }
 
 const Tile = (props: TileProps) => {
-  const { radius, x, y, q, r, s, fill, onTileClick: handleTileClick } = props
+  const { radius, x, y, q, r, s, fill, onTileDraw: handleTileDraw } = props
 
-  const handleClick = (e: any) => {
-    handleTileClick(e, q, r, s)
+  const handleMouseUp = (e: any) => {
+    handleTileDraw(e, q, r, s)
+  }
+
+  const handleMouseMove = (e: any) => {
+    handleTileDraw(e, q, r, s)
   }
 
   return (
@@ -25,7 +29,8 @@ const Tile = (props: TileProps) => {
       fill={fill}
       x={x}
       y={y}
-      onClick={handleClick}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
     />
   )
 }
