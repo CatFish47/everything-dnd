@@ -1,4 +1,4 @@
-import { MetaTags } from '@redwoodjs/web'
+import { MetaTags, useQuery } from '@redwoodjs/web'
 import { useEffect, useState } from 'react'
 import { Stage, Layer, Rect } from 'react-konva'
 import CharacterCard from 'src/components/Menu/NormalMode/CharacterCard'
@@ -11,33 +11,46 @@ import ToolSelection from 'src/components/Menu/EditMode/ToolSelection'
 import NumberInput from 'src/components/Menu/EditMode/NumberInput'
 import ColorPicker from 'src/components/Menu/EditMode/ColorPicker'
 import CharacterActions from 'src/components/Menu/NormalMode/CharacterActions'
+import { Character } from 'types/graphql'
+
+/**
+ * Tomorrows TODO:
+ * - Add characters into the database
+ * - Functionality to add characters onto the map
+ * If extra time:
+ * - Distinguish between PCs and NPCs
+ */
+
+const GET_CHARACTERS = gql`
+  query {
+    characters {
+      id
+      image
+      isPlayer
+      name
+      str
+      dex
+      con
+      int
+      wis
+      cha
+      hp
+      ac
+      lvl
+      speed
+    }
+  }
+`
 
 const GridPage = () => {
   const dimensions = useWindowSize()
 
+  const { loading, error, data } = useQuery(GET_CHARACTERS)
+  const charsData: Character[] = data?.characters
+
   const [stickyChar, setStickyChar] = useState('')
   const [currChar, setCurrChar] = useState('')
-  const [charsInfo, setCharsInfo] = useState({
-    CatFish: {
-      fill: '#a0f',
-      isPlayer: true,
-      name: 'CatFish',
-      q: 0,
-      r: 0,
-      s: 0,
-      str: 10,
-      dex: 13,
-      con: 16,
-      int: 12,
-      wis: 19,
-      cha: 8,
-      hp: 57,
-      maxhp: 57,
-      ac: 15,
-      lvl: 6,
-      speed: 30,
-    },
-  })
+  const [charsInfo, setCharsInfo] = useState({})
 
   const [stageProps, setStageProps] = useState({
     scaleX: 1,
@@ -57,8 +70,25 @@ const GridPage = () => {
   const [toolMode, setToolMode] = useState(TOOLS.pointer)
 
   const { width, height } = dimensions
-  const { scaleX, scaleY, draggable } = stageProps
+  const { scaleX, scaleY } = stageProps
   const scaleBy = 1.1
+
+  useEffect(() => {
+    charsData?.forEach(char => {
+      setCharsInfo((prevState) => {
+        let newState = {...prevState}
+        newState[char.name] = {
+          q: 0,
+          r: 0,
+          s: 0,
+          hp: char.hp,
+          stats: char
+        }
+
+        return newState
+      })
+    });
+  }, [loading])
 
   // Taken from https://konvajs.org/docs/sandbox/Zooming_Relative_To_Pointer.html
   const handleScroll = (e: any) => {
@@ -164,14 +194,14 @@ const GridPage = () => {
     if (!stickyChar) return
 
     const currHP = charsInfo[stickyChar].hp
-    const maxHP = charsInfo[stickyChar].maxhp
+    const maxHP = charsInfo[stickyChar].stats.hp
 
     if (value < 0) {
       setCharsInfo((prevState) => {
         let newState = {
           ...prevState
         }
-        charsInfo[stickyChar].hp = Math.max(0, currHP + value)
+        newState[stickyChar].hp = Math.max(0, currHP + value)
 
         return newState
       })
@@ -181,7 +211,7 @@ const GridPage = () => {
         let newState = {
           ...prevState,
         }
-        charsInfo[stickyChar].hp = Math.min(maxHP, currHP + value)
+        newState[stickyChar].hp = Math.min(maxHP, currHP + value)
 
         return newState
       })
@@ -198,21 +228,24 @@ const GridPage = () => {
     currCharInfo = null
   }
 
+  const widthMod = width * 0.99
+  const heightMod = height * 0.99
+
   return (
     <>
       <MetaTags title="Grid" description="Grid page" />
 
       <div className="w-screen h-screen grid grid-cols-4">
         <Stage
-          width={width}
-          height={height}
+          width={widthMod}
+          height={heightMod}
           className="col-span-3"
           draggable={toolMode === TOOLS.pan}
           onWheel={handleScroll}
           scaleX={scaleX}
           scaleY={scaleY}
-          offsetX={-width / 2}
-          offsetY={-height / 2}
+          offsetX={-widthMod / 2}
+          offsetY={-heightMod / 2}
           onMouseDown={() => setMouseDown(true)}
           onMouseUp={() => {
             setMouseDown(false)
@@ -228,15 +261,15 @@ const GridPage = () => {
               tileSize={50}
               x={0}
               y={0}
-              xMax={width}
-              yMax={height}
+              xMax={widthMod}
+              yMax={heightMod}
               onTileDraw={handleTileDraw}
               onPlayerMove={handlePlayerMove}
               tileInfos={tileInfos}
               defaultFill={defaultFill}
               charsInfo={charsInfo}
               onCharMouseIn={(e: any, name: string) => setCurrChar(name)}
-              onCharMouseOut={(e: any, name: string) => setCurrChar('')}
+              onCharMouseOut={() => setCurrChar('')}
               onCharClick={handleCharClick}
             />
           </Layer>
@@ -258,7 +291,7 @@ const GridPage = () => {
           >
             <div className="collapse-content">
               {currCharInfo && <CharacterCard charInfo={currCharInfo} />}
-              {currCharInfo && currCharInfo.name === stickyChar && (
+              {currCharInfo && currCharInfo.stats.name === stickyChar && (
                 <>
                   <div className="divider" />
                   <CharacterActions onApply={handleHpChange} />

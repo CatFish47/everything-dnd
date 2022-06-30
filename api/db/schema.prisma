@@ -16,3 +16,20 @@ model UserExample {
   email String  @unique
   name  String?
 }
+
+model Character {
+  id       Int     @id @default(autoincrement())
+  image    String
+  isPlayer Boolean
+  name     String
+  str      Int
+  dex      Int
+  con      Int
+  int      Int
+  wis      Int
+  cha      Int
+  hp       Int
+  ac       Int
+  lvl      Int
+  speed    Int
+}

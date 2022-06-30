@@ -18,7 +18,7 @@ const CharacterActions = (props: CharacterActionsProps) => {
   return (
     <div className="card bg-base-200 shadow-l">
       <div className="card-body items-center">
-        <h2 className="card-title">Actions</h2>
+        <h2 className="card-title">HP</h2>
         <div className="card-actions">
           <div className="form-control">
             <div className="input-group">

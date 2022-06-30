@@ -99,7 +99,7 @@ const Honeycomb = (props: HoneycombProps) => {
         )
       })}
 
-      {Object.entries(charsInfo).map((entry) => {
+      {charsInfo && Object.entries(charsInfo).map((entry) => {
         const charName = entry[0]
         const charInfo = entry[1]
 
@@ -114,7 +114,7 @@ const Honeycomb = (props: HoneycombProps) => {
             q={charInfo.q}
             r={charInfo.r}
             s={charInfo.s}
-            fill={charInfo.fill}
+            fill={charInfo.stats.image}
             name={charName}
             key={charName}
             onPlayerClick={handleCharClick}

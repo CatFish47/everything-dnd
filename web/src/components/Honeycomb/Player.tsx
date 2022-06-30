@@ -157,7 +157,7 @@ const Player = (props: PlayerProps) => {
       />
       <HealthBar
         hp={playerInfo.hp}
-        hpMax={playerInfo.maxhp}
+        hpMax={playerInfo.stats.hp}
         x={x}
         y={y}
         tileRadius={radius}

@@ -1,21 +1,11 @@
+import { Character } from "types/graphql"
+
 export type CharInfo = {
-  fill: string
-  isPlayer: boolean
-  name: string
   q: number
   r: number
   s: number
-  str: number
-  dex: number
-  con: number
-  int: number
-  wis: number
-  cha: number
   hp: number
-  maxhp: number
-  ac: number
-  lvl: number
-  speed: number
+  stats: Character
 }
 
 export interface CharactersInfo {

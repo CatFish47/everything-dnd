@@ -7,22 +7,26 @@ type CharacterCardProps = {
 const CharacterCard = (props: CharacterCardProps) => {
   const {charInfo} = props
   const {
-    name,
-    lvl,
-    ac,
     hp,
-    maxhp,
-    speed,
     q,
     r,
     s,
+    stats
+  } = charInfo
+
+  const {
+    name,
+    lvl,
+    ac,
+    hp: maxhp,
+    speed,
     str,
     dex,
     con,
     int,
     wis,
-    cha,
-  } = charInfo
+    cha
+  } = stats
 
   return (
     <div className="card bg-base-200 shadow-l">
