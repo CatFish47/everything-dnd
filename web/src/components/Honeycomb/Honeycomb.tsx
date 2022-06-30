@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import Tile from 'src/components/Honeycomb/Tile'
-import keyGen from 'src/utilities/honeycombUtils'
-import { TileGridInfo } from 'src/utilities/TileInfo'
-import { CharactersInfo } from 'src/utilities/CharactersInfo'
+import { keyGen, getTilesInRadius } from 'src/utilities/honeycombUtils'
+import { TileGridInfo } from 'src/types/TileInfo'
+import { CharactersInfo } from 'src/types/CharactersInfo'
 import Player from 'src/components/Honeycomb/Player'
 
 type HoneycombProps = {
@@ -14,6 +14,8 @@ type HoneycombProps = {
   yMax: number
   onTileClick: (e: any, q: number, r: number, s: number) => void
   onPlayerMove: (e: any, name: string, q: number, r: number, s: number) => void
+  onCharMouseIn: (e: any, name: string) => void
+  onCharMouseOut: (e: any, name: string) => void
   tileInfos: TileGridInfo
   defaultFill: string
   charsInfo: CharactersInfo
@@ -29,6 +31,8 @@ const Honeycomb = (props: HoneycombProps) => {
     yMax,
     onTileClick: handleTileClick,
     onPlayerMove: handlePlayerMove,
+    onCharMouseIn: handleCharMouseIn,
+    onCharMouseOut: handleCharMouseOut,
     tileInfos,
     defaultFill,
     charsInfo,
@@ -39,24 +43,25 @@ const Honeycomb = (props: HoneycombProps) => {
   const b = (3 / 4) * tileSize
 
   useEffect(() => {
-    setTileGrid([])
+    setTileGrid(getTilesInRadius(0, 0, 0, gridSize))
+    // setTileGrid([])
 
-    for (let q = -gridSize; q <= gridSize; q++) {
-      for (let r = -gridSize; r <= gridSize; r++) {
-        for (let s = -gridSize; s <= gridSize; s++) {
-          if (q + r + s === 0) {
-            setTileGrid((prevState) => [
-              ...prevState,
-              {
-                q,
-                r,
-                s,
-              },
-            ])
-          }
-        }
-      }
-    }
+    // for (let q = -gridSize; q <= gridSize; q++) {
+    //   for (let r = -gridSize; r <= gridSize; r++) {
+    //     for (let s = -gridSize; s <= gridSize; s++) {
+    //       if (q + r + s === 0) {
+    //         setTileGrid((prevState) => [
+    //           ...prevState,
+    //           {
+    //             q,
+    //             r,
+    //             s,
+    //           },
+    //         ])
+    //       }
+    //     }
+    //   }
+    // }
   }, [gridSize])
 
   return (
@@ -112,6 +117,8 @@ const Honeycomb = (props: HoneycombProps) => {
             key={charName}
             onTileClick={handleTileClick}
             onPlayerMove={handlePlayerMove}
+            onPlayerMouseIn={handleCharMouseIn}
+            onPlayerMouseOut={handleCharMouseOut}
           />
         )
       })}

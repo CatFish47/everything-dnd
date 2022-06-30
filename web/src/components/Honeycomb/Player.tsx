@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react'
 import { RegularPolygon } from 'react-konva'
-import keyGen, {
-  cartesianToAxial,
-  axialToCartesian,
+import {
+  keyGen,
+  cartesianToCube,
+  cubeToCartesian,
   distance,
   generateLine,
-  getTilesInRadius
+  getTilesInRadius,
 } from 'src/utilities/honeycombUtils'
 
 type PlayerProps = {
@@ -19,6 +20,8 @@ type PlayerProps = {
   name: string
   onTileClick: (e: any, q: number, r: number, s: number) => void
   onPlayerMove: (e: any, name: string, q: number, r: number, s: number) => void
+  onPlayerMouseIn: (e: any, name: string) => void
+  onPlayerMouseOut: (e: any, name: string) => void
 }
 
 const Player = (props: PlayerProps) => {
@@ -33,6 +36,8 @@ const Player = (props: PlayerProps) => {
     name,
     onTileClick: handleTileClick,
     onPlayerMove: handlePlayerMove,
+    onPlayerMouseIn: handlePlayerMouseIn,
+    onPlayerMouseOut: handlePlayerMouseOut,
   } = props
 
   const [moving, setMoving] = useState(false)
@@ -54,9 +59,9 @@ const Player = (props: PlayerProps) => {
       q: qApprox,
       r: rApprox,
       s: sApprox,
-    } = cartesianToAxial(ref.current.attrs.x, ref.current.attrs.y, radius)
+    } = cartesianToCube(ref.current.attrs.x, ref.current.attrs.y, radius)
 
-    const { x: xSnap, y: ySnap } = axialToCartesian(
+    const { x: xSnap, y: ySnap } = cubeToCartesian(
       qApprox,
       rApprox,
       sApprox,
@@ -74,7 +79,7 @@ const Player = (props: PlayerProps) => {
       q: newQ,
       r: newR,
       s: newS,
-    } = cartesianToAxial(ref.current.attrs.x, ref.current.attrs.y, radius)
+    } = cartesianToCube(ref.current.attrs.x, ref.current.attrs.y, radius)
 
     handlePlayerMove(e, name, newQ, newR, newS)
 
@@ -85,9 +90,9 @@ const Player = (props: PlayerProps) => {
     <>
       {moving &&
         tileLine.map((tile) => {
-          const {q: qTile, r: rTile, s: sTile, i} = tile
+          const { q: qTile, r: rTile, s: sTile, i } = tile
 
-          const { x: tileX, y: tileY } = axialToCartesian(
+          const { x: tileX, y: tileY } = cubeToCartesian(
             qTile,
             rTile,
             sTile,
@@ -127,6 +132,12 @@ const Player = (props: PlayerProps) => {
         onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}
+        onMouseEnter={(e) => {
+          handlePlayerMouseIn(e, name)
+        }}
+        onMouseLeave={(e) => {
+          handlePlayerMouseOut(e, name)
+        }}
         ref={ref}
       />
     </>

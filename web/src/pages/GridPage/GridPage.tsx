@@ -2,26 +2,31 @@ import { MetaTags } from '@redwoodjs/web'
 import { useEffect, useState } from 'react'
 import { Stage, Layer } from 'react-konva'
 import Honeycomb from 'src/components/Honeycomb/Honeycomb'
-import keyGen from 'src/utilities/honeycombUtils'
+import { getTilesInRadius, keyGen } from 'src/utilities/honeycombUtils'
 import useWindowSize from 'src/utilities/useWindowSize'
 
 const GridPage = () => {
   const dimensions = useWindowSize()
 
+  const [currChar, setCurrChar] = useState("")
   const [charsInfo, setCharsInfo] = useState({
-    testPlayer: {
+    CatFish: {
       fill: '#a0f',
       isPlayer: true,
-      q: 1,
-      r: -1,
+      q: 0,
+      r: 0,
       s: 0,
-    },
-    grant: {
-      fill: '#af0',
-      isPlayer: true,
-      q: -1,
-      r: -1,
-      s: 2,
+      str: 10,
+      dex: 13,
+      con: 16,
+      int: 12,
+      wis: 19,
+      cha: 8,
+      hp: 57,
+      maxhp: 57,
+      ac: 15,
+      lvl: 6,
+      speed: 30
     },
   })
 
@@ -146,6 +151,16 @@ const GridPage = () => {
     })
   }
 
+  const handleCharMouseIn = (e: any, name: string) => {
+    setCurrChar(name)
+  }
+
+  const handleCharMouseOut = (e: any, name: string) => {
+    setCurrChar("")
+  }
+
+  const currCharInfo = charsInfo[currChar]
+
   return (
     <>
       <MetaTags title="Grid" description="Grid page" />
@@ -175,6 +190,8 @@ const GridPage = () => {
               tileInfos={tileInfos}
               defaultFill={defaultFill}
               charsInfo={charsInfo}
+              onCharMouseIn={handleCharMouseIn}
+              onCharMouseOut={handleCharMouseOut}
             />
           </Layer>
         </Stage>
@@ -193,7 +210,62 @@ const GridPage = () => {
               !editMode ? 'collapse-open' : 'collapse-close'
             }`}
           >
-            <div className="collapse-content">Normal Mode</div>
+            <div className="collapse-content">
+              {currChar && (
+                <div className="card bg-base-200 shadow-l">
+                  <div className="card-body">
+                    <h2 className="card-title">{currChar}</h2>
+
+                    <div>
+                      <div>Level: {currCharInfo.lvl}</div>
+                      <div>Armor Class: {currCharInfo.ac}</div>
+                      <div>
+                        Hit Points: {currCharInfo.hp} / {currCharInfo.maxhp}
+                      </div>
+                      <div>Speed: {currCharInfo.speed}</div>
+                      <div>
+                        Position: ({currCharInfo.q}, {currCharInfo.r},{' '}
+                        {currCharInfo.s})
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-6 place-items-center">
+                      <div>STR</div>
+                      <div>DEX</div>
+                      <div>CON</div>
+                      <div>INT</div>
+                      <div>WIS</div>
+                      <div>CHA</div>
+
+                      <div>
+                        {currCharInfo.str} (
+                        {Math.floor((currCharInfo.str - 10) / 2)})
+                      </div>
+                      <div>
+                        {currCharInfo.dex} (
+                        {Math.floor((currCharInfo.dex - 10) / 2)})
+                      </div>
+                      <div>
+                        {currCharInfo.con} (
+                        {Math.floor((currCharInfo.con - 10) / 2)})
+                      </div>
+                      <div>
+                        {currCharInfo.int} (
+                        {Math.floor((currCharInfo.int - 10) / 2)})
+                      </div>
+                      <div>
+                        {currCharInfo.wis} (
+                        {Math.floor((currCharInfo.wis - 10) / 2)})
+                      </div>
+                      <div>
+                        {currCharInfo.cha} (
+                        {Math.floor((currCharInfo.cha - 10) / 2)})
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <div
             tabIndex={0}
@@ -267,6 +339,22 @@ const GridPage = () => {
                   className="mx-3"
                 />
                 <span className="mx-3">Brush Color</span>
+              </div>
+
+              <div className="divider" />
+
+              <div className="form-control">
+                <label className="input-group">
+                  <span>Grid Size</span>
+                  <input
+                    type="number"
+                    className="input input-bordered"
+                    value={gridSize}
+                    onChange={(e: any) => {
+                      setGridSize(Math.max(0, Math.floor(e.target.value)))
+                    }}
+                  />
+                </label>
               </div>
             </div>
           </div>
