@@ -18,7 +18,7 @@ type PlayerProps = {
   s: number
   fill: string
   name: string
-  onTileClick: (e: any, q: number, r: number, s: number) => void
+  onPlayerClick: (e: any, name: string) => void
   onPlayerMove: (e: any, name: string, q: number, r: number, s: number) => void
   onPlayerMouseIn: (e: any, name: string) => void
   onPlayerMouseOut: (e: any, name: string) => void
@@ -34,20 +34,23 @@ const Player = (props: PlayerProps) => {
     s,
     fill,
     name,
-    onTileClick: handleTileClick,
+    onPlayerClick: handlePlayerClick,
     onPlayerMove: handlePlayerMove,
     onPlayerMouseIn: handlePlayerMouseIn,
     onPlayerMouseOut: handlePlayerMouseOut,
   } = props
 
   const [moving, setMoving] = useState(false)
+  const [draggable, setDraggable] = useState(true)
   const [tileLine, setTileLine] = useState([])
   const ref = useRef(null)
 
   const handleClick = (e: any) => {
-    // console.log(ref)
-    console.log(`${name} at (${q}, ${r}, ${s}) has been clicked.`)
+    // console.log(`${name} at (${q}, ${r}, ${s}) has been clicked.`)
     // console.log(getTilesInRadius(q, r, s))
+
+    // if right-mouse button
+    handlePlayerClick(e, name)
   }
 
   const handleDragStart = (e: any) => {
@@ -72,6 +75,14 @@ const Player = (props: PlayerProps) => {
 
     ref.current.attrs.x = xSnap
     ref.current.attrs.y = ySnap
+
+    // some dumb code to prevent drag from starting only on click
+    if (e.evt.which !== 1) {
+      setMoving(false)
+      setDraggable(false)
+      setDraggable(true)
+      return
+    }
   }
 
   const handleDragEnd = (e: any) => {
@@ -128,7 +139,7 @@ const Player = (props: PlayerProps) => {
         x={x}
         y={y}
         onClick={handleClick}
-        draggable={true}
+        draggable={draggable}
         onDragStart={handleDragStart}
         onDragMove={handleDragMove}
         onDragEnd={handleDragEnd}

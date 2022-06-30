@@ -1,18 +1,26 @@
 import { MetaTags } from '@redwoodjs/web'
 import { useEffect, useState } from 'react'
 import { Stage, Layer } from 'react-konva'
+import CharacterCard from 'src/components/Menu/NormalMode/CharacterCard'
 import Honeycomb from 'src/components/Honeycomb/Honeycomb'
+import { CharInfo } from 'src/types/CharactersInfo'
 import { getTilesInRadius, keyGen } from 'src/utilities/honeycombUtils'
 import useWindowSize from 'src/utilities/useWindowSize'
+import { TOOLS } from 'src/utilities/consts'
+import ToolSelection from 'src/components/Menu/EditMode/ToolSelection'
+import NumberInput from 'src/components/Menu/EditMode/NumberInput'
+import ColorPicker from 'src/components/Menu/EditMode/ColorPicker'
 
 const GridPage = () => {
   const dimensions = useWindowSize()
 
-  const [currChar, setCurrChar] = useState("")
+  const [stickyChar, setStickyChar] = useState('')
+  const [currChar, setCurrChar] = useState('')
   const [charsInfo, setCharsInfo] = useState({
     CatFish: {
       fill: '#a0f',
       isPlayer: true,
+      name: 'CatFish',
       q: 0,
       r: 0,
       s: 0,
@@ -26,7 +34,7 @@ const GridPage = () => {
       maxhp: 57,
       ac: 15,
       lvl: 6,
-      speed: 30
+      speed: 30,
     },
   })
 
@@ -45,12 +53,6 @@ const GridPage = () => {
 
   const [mouseDown, setMouseDown] = useState(false)
 
-  const TOOLS = {
-    pointer: 'pointer',
-    brush: 'brush',
-    pan: 'pan',
-    erase: 'erase',
-  }
   const [toolMode, setToolMode] = useState(TOOLS.pointer)
 
   const { width, height } = dimensions
@@ -99,6 +101,7 @@ const GridPage = () => {
 
   const handleModeToggle = () => {
     setEditMode((prevState) => !prevState)
+    setStickyChar('')
   }
 
   const handleTileDraw = (e: any, q: number, r: number, s: number) => {
@@ -125,14 +128,6 @@ const GridPage = () => {
     }
   }
 
-  const handleBrushColorChange = (e: any) => {
-    setBrushColor(e.target.value)
-  }
-
-  const handleDefaultColorChange = (e: any) => {
-    setDefaultFill(e.target.value)
-  }
-
   const handlePlayerMove = (
     e: any,
     name: string,
@@ -153,15 +148,26 @@ const GridPage = () => {
     })
   }
 
-  const handleCharMouseIn = (e: any, name: string) => {
-    setCurrChar(name)
+  const handleCharClick = (e: any, name: string) => {
+    if (e.evt.which === 1) {
+      console.log('Left mouse button clicked')
+
+      setStickyChar(name)
+    }
+    if (e.evt.which === 3) {
+      console.log('Right mouse button clicked')
+    }
   }
 
-  const handleCharMouseOut = (e: any, name: string) => {
-    setCurrChar("")
-  }
+  let currCharInfo: CharInfo
 
-  const currCharInfo = charsInfo[currChar]
+  if (currChar) {
+    currCharInfo = charsInfo[currChar]
+  } else if (stickyChar) {
+    currCharInfo = charsInfo[stickyChar]
+  } else {
+    currCharInfo = null
+  }
 
   return (
     <>
@@ -179,7 +185,13 @@ const GridPage = () => {
           offsetX={-width / 2}
           offsetY={-height / 2}
           onMouseDown={() => setMouseDown(true)}
-          onMouseUp={() => setMouseDown(false)}
+          onMouseUp={() => {
+            setMouseDown(false)
+            setStickyChar('')
+          }}
+          onContextMenu={(e) => {
+            e.evt.preventDefault()
+          }}
         >
           <Layer>
             <Honeycomb
@@ -194,8 +206,9 @@ const GridPage = () => {
               tileInfos={tileInfos}
               defaultFill={defaultFill}
               charsInfo={charsInfo}
-              onCharMouseIn={handleCharMouseIn}
-              onCharMouseOut={handleCharMouseOut}
+              onCharMouseIn={(e: any, name: string) => setCurrChar(name)}
+              onCharMouseOut={(e: any, name: string) => setCurrChar('')}
+              onCharClick={handleCharClick}
             />
           </Layer>
         </Stage>
@@ -215,60 +228,7 @@ const GridPage = () => {
             }`}
           >
             <div className="collapse-content">
-              {currChar && (
-                <div className="card bg-base-200 shadow-l">
-                  <div className="card-body">
-                    <h2 className="card-title">{currChar}</h2>
-
-                    <div>
-                      <div>Level: {currCharInfo.lvl}</div>
-                      <div>Armor Class: {currCharInfo.ac}</div>
-                      <div>
-                        Hit Points: {currCharInfo.hp} / {currCharInfo.maxhp}
-                      </div>
-                      <div>Speed: {currCharInfo.speed}</div>
-                      <div>
-                        Position: ({currCharInfo.q}, {currCharInfo.r},{' '}
-                        {currCharInfo.s})
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-6 place-items-center">
-                      <div>STR</div>
-                      <div>DEX</div>
-                      <div>CON</div>
-                      <div>INT</div>
-                      <div>WIS</div>
-                      <div>CHA</div>
-
-                      <div>
-                        {currCharInfo.str} (
-                        {Math.floor((currCharInfo.str - 10) / 2)})
-                      </div>
-                      <div>
-                        {currCharInfo.dex} (
-                        {Math.floor((currCharInfo.dex - 10) / 2)})
-                      </div>
-                      <div>
-                        {currCharInfo.con} (
-                        {Math.floor((currCharInfo.con - 10) / 2)})
-                      </div>
-                      <div>
-                        {currCharInfo.int} (
-                        {Math.floor((currCharInfo.int - 10) / 2)})
-                      </div>
-                      <div>
-                        {currCharInfo.wis} (
-                        {Math.floor((currCharInfo.wis - 10) / 2)})
-                      </div>
-                      <div>
-                        {currCharInfo.cha} (
-                        {Math.floor((currCharInfo.cha - 10) / 2)})
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {currCharInfo && <CharacterCard charInfo={currCharInfo} />}
             </div>
           </div>
           <div
@@ -281,85 +241,27 @@ const GridPage = () => {
               {/*
                 Things to add:
                   Dropdown for map presets
-                  Text input for gridsize
                   Toggle button to show/hide characters on top
-
-                  Button group for tool mode (select, brush, fill (add later))
-                  Color picker/text input for color
-
                */}
 
-              <div className="btn-group justify-center mb-5">
-                <input
-                  type="radio"
-                  name="tool"
-                  className="btn"
-                  data-title="Pointer"
-                  onClick={() => {
-                    setToolMode(TOOLS.pointer)
-                  }}
-                  defaultChecked={true}
-                />
-                <input
-                  type="radio"
-                  name="tool"
-                  className="btn"
-                  data-title="Pan"
-                  onClick={() => {
-                    setToolMode(TOOLS.pan)
-                  }}
-                />
-                <input
-                  type="radio"
-                  name="tool"
-                  className="btn"
-                  data-title="Brush"
-                  onClick={() => {
-                    setToolMode(TOOLS.brush)
-                  }}
-                />
-                <input
-                  type="radio"
-                  name="tool"
-                  className="btn"
-                  data-title="Erase"
-                  onClick={() => {
-                    setToolMode(TOOLS.erase)
-                  }}
-                />
-              </div>
-              <div className="flex">
-                <input
-                  type="color"
-                  onChange={handleDefaultColorChange}
-                  className="mx-3"
-                />
-                <span className="mx-3">Background Color</span>
-              </div>
-              <div className="flex">
-                <input
-                  type="color"
-                  onChange={handleBrushColorChange}
-                  className="mx-3"
-                />
-                <span className="mx-3">Brush Color</span>
-              </div>
+              <ToolSelection setToolMode={setToolMode} />
+              <ColorPicker
+                name="Background Color"
+                onChange={(e: any) => setDefaultFill(e.target.value)}
+              />
+              <ColorPicker
+                name="Brush Color"
+                onChange={(e: any) => setBrushColor(e.target.value)}
+              />
 
               <div className="divider" />
 
-              <div className="form-control">
-                <label className="input-group">
-                  <span>Grid Size</span>
-                  <input
-                    type="number"
-                    className="input input-bordered"
-                    value={gridSize}
-                    onChange={(e: any) => {
-                      setGridSize(Math.max(0, Math.floor(e.target.value)))
-                    }}
-                  />
-                </label>
-              </div>
+              <NumberInput
+                value={gridSize}
+                onChange={(e: any) => {
+                  setGridSize(Math.max(0, Math.floor(e.target.value)))
+                }}
+              />
             </div>
           </div>
         </div>

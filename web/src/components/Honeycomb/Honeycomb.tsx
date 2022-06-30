@@ -16,6 +16,7 @@ type HoneycombProps = {
   onPlayerMove: (e: any, name: string, q: number, r: number, s: number) => void
   onCharMouseIn: (e: any, name: string) => void
   onCharMouseOut: (e: any, name: string) => void
+  onCharClick: (e: any, name: string) => void
   tileInfos: TileGridInfo
   defaultFill: string
   charsInfo: CharactersInfo
@@ -33,6 +34,7 @@ const Honeycomb = (props: HoneycombProps) => {
     onPlayerMove: handlePlayerMove,
     onCharMouseIn: handleCharMouseIn,
     onCharMouseOut: handleCharMouseOut,
+    onCharClick: handleCharClick,
     tileInfos,
     defaultFill,
     charsInfo,
@@ -115,7 +117,7 @@ const Honeycomb = (props: HoneycombProps) => {
             fill={charInfo.fill}
             name={charName}
             key={charName}
-            onTileClick={handleTileDraw}
+            onPlayerClick={handleCharClick}
             onPlayerMove={handlePlayerMove}
             onPlayerMouseIn={handleCharMouseIn}
             onPlayerMouseOut={handleCharMouseOut}

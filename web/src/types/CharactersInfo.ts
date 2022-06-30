@@ -1,6 +1,7 @@
 export type CharInfo = {
   fill: string
   isPlayer: boolean
+  name: string
   q: number
   r: number
   s: number
