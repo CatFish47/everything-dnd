@@ -9,7 +9,7 @@ const ToolSelection = (props: ToolSelectionProps) => {
 
   return (
     <div className="btn-group justify-center mb-5">
-      <input
+      {/* <input
         type="radio"
         name="tool"
         className="btn"
@@ -18,7 +18,7 @@ const ToolSelection = (props: ToolSelectionProps) => {
           setToolMode(TOOLS.pointer)
         }}
         defaultChecked={true}
-      />
+      /> */}
       <input
         type="radio"
         name="tool"
@@ -27,6 +27,7 @@ const ToolSelection = (props: ToolSelectionProps) => {
         onClick={() => {
           setToolMode(TOOLS.pan)
         }}
+        defaultChecked
       />
       <input
         type="radio"

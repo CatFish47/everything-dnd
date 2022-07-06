@@ -2,6 +2,7 @@ import { useRef, useState } from "react"
 
 type CharacterActionsProps = {
   onApply: (hpChange: number) => void
+  onDelete: () => void
 }
 
 const CharacterActions = (props: CharacterActionsProps) => {
@@ -9,7 +10,7 @@ const CharacterActions = (props: CharacterActionsProps) => {
 
   const [health, setHealth] = useState(0)
 
-  const {onApply: handleApplyHP} = props
+  const {onApply: handleApplyHP, onDelete: handleDelete} = props
 
   const handleChange = (e: any) => {
     setHealth(Math.floor(Math.abs(+ref.current.value)))
@@ -18,9 +19,12 @@ const CharacterActions = (props: CharacterActionsProps) => {
   return (
     <div className="card bg-base-200 shadow-l">
       <div className="card-body items-center">
-        <h2 className="card-title">HP</h2>
-        <div className="card-actions">
+        <h2 className="card-title">Actions</h2>
+        <div className="card-actions items-center flex-col">
           <div className="form-control">
+            <label className="label">
+              <span className="label-text">HP</span>
+            </label>
             <div className="input-group">
               <button
                 className="btn btn-square btn-error"
@@ -69,6 +73,8 @@ const CharacterActions = (props: CharacterActionsProps) => {
               </button>
             </div>
           </div>
+          <div className="divider"/>
+          <button className="btn btn-error" onClick={handleDelete}>Delete</button>
         </div>
       </div>
     </div>

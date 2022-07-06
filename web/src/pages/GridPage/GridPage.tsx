@@ -13,6 +13,7 @@ import ColorPicker from 'src/components/Menu/EditMode/ColorPicker'
 import CharacterActions from 'src/components/Menu/NormalMode/CharacterActions'
 import { Character } from 'types/graphql'
 import CharacterAdd from 'src/components/Menu/NormalMode/CharacterAdd'
+import npcTagGen from 'src/utilities/npcTagGen'
 
 /**
  * Tomorrows TODO:
@@ -70,7 +71,7 @@ const GridPage = () => {
 
   const [mouseDown, setMouseDown] = useState(false)
 
-  const [toolMode, setToolMode] = useState(TOOLS.pointer)
+  const [toolMode, setToolMode] = useState(TOOLS.pan)
 
   const { width, height } = dimensions
   const { scaleX, scaleY } = stageProps
@@ -189,6 +190,7 @@ const GridPage = () => {
 
   const handleHpChange = (value: number) => {
     if (!stickyChar) return
+    if (!charsInfo[stickyChar]) return
 
     const currHP = charsInfo[stickyChar].hp
     const maxHP = charsInfo[stickyChar].stats.hp
@@ -212,6 +214,18 @@ const GridPage = () => {
         return newState
       })
     }
+  }
+
+  const handleCharDelete = () => {
+    if (!stickyChar) return
+    if (!charsInfo[stickyChar]) return
+
+    setCharsInfo((prevState) => {
+      let newState = {...prevState}
+      delete newState[stickyChar]
+
+      return newState
+    })
   }
 
   const handleAddCharacter = (name: string) => {
@@ -324,7 +338,7 @@ const GridPage = () => {
               {currCharInfo?.stats.name === stickyChar && (
                 <>
                   <div className="divider" />
-                  <CharacterActions onApply={handleHpChange} />
+                  <CharacterActions onDelete={handleCharDelete} onApply={handleHpChange} />
                 </>
               )}
             </div>
@@ -368,12 +382,6 @@ const GridPage = () => {
   )
 }
 
-function npcTagGen(length: number) {
-  const start = 2
 
-  return Math.random()
-    .toString()
-    .substring(start, start + length)
-}
 
 export default GridPage
