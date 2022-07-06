@@ -1,5 +1,5 @@
 import { MetaTags, useQuery } from '@redwoodjs/web'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Stage, Layer, Rect } from 'react-konva'
 import CharacterCard from 'src/components/Menu/NormalMode/CharacterCard'
 import Honeycomb from 'src/components/Honeycomb/Honeycomb'
@@ -14,14 +14,6 @@ import CharacterActions from 'src/components/Menu/NormalMode/CharacterActions'
 import { Character } from 'types/graphql'
 import CharacterAdd from 'src/components/Menu/NormalMode/CharacterAdd'
 import npcTagGen from 'src/utilities/npcTagGen'
-
-/**
- * Tomorrows TODO:
- * - Add characters into the database
- * - Functionality to add characters onto the map
- * If extra time:
- * - Distinguish between PCs and NPCs
- */
 
 const GET_CHARACTERS = gql`
   query {
@@ -45,6 +37,8 @@ const GET_CHARACTERS = gql`
 `
 
 const GridPage = () => {
+  const importRef = useRef(null)
+
   const dimensions = useWindowSize()
 
   const { loading, error, data } = useQuery(GET_CHARACTERS)
@@ -221,7 +215,7 @@ const GridPage = () => {
     if (!charsInfo[stickyChar]) return
 
     setCharsInfo((prevState) => {
-      let newState = {...prevState}
+      let newState = { ...prevState }
       delete newState[stickyChar]
 
       return newState
@@ -256,6 +250,44 @@ const GridPage = () => {
     })
   }
 
+  const handleExport = () => {
+    const exportInfo = JSON.stringify({
+      charsInfo,
+      tileInfos,
+      gridSize,
+      defaultFill,
+    })
+
+    navigator.clipboard.writeText(exportInfo)
+  }
+
+  const handleImport = (importString: string) => {
+    let importInfo;
+
+    try {
+      importInfo = JSON.parse(importString)
+    } catch (e) {
+      return;
+    }
+
+    const {
+      charsInfo: newCharsInfo,
+      tileInfos: newTileInfos,
+      gridSize: newGridSize,
+      defaultFill: newDefaultFill,
+    } = importInfo
+
+    if (newCharsInfo === undefined) return
+    if (newTileInfos === undefined) return
+    if (newGridSize === undefined) return
+    if (newDefaultFill === undefined) return
+
+    setCharsInfo(newCharsInfo)
+    setTileInfos(newTileInfos)
+    setGridSize(newGridSize)
+    setDefaultFill(newDefaultFill)
+  }
+
   let currCharInfo: CharInfo
 
   if (currChar) {
@@ -282,8 +314,8 @@ const GridPage = () => {
           onWheel={handleScroll}
           scaleX={scaleX}
           scaleY={scaleY}
-          offsetX={(-widthMod / 2) || 0}
-          offsetY={(-heightMod / 2) || 0}
+          offsetX={-widthMod / 2 || 0}
+          offsetY={-heightMod / 2 || 0}
           onMouseDown={() => setMouseDown(true)}
           onMouseUp={() => {
             setMouseDown(false)
@@ -338,7 +370,10 @@ const GridPage = () => {
               {currCharInfo?.stats.name === stickyChar && (
                 <>
                   <div className="divider" />
-                  <CharacterActions onDelete={handleCharDelete} onApply={handleHpChange} />
+                  <CharacterActions
+                    onDelete={handleCharDelete}
+                    onApply={handleHpChange}
+                  />
                 </>
               )}
             </div>
@@ -374,14 +409,46 @@ const GridPage = () => {
                   setGridSize(Math.max(0, Math.floor(e.target.value)))
                 }}
               />
+
+              <div className="divider" />
+
+              <label htmlFor="import-modal" className="btn">
+                Import Map
+              </label>
+              <button className="btn" onClick={handleExport}>
+                Export Map
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      <input type="checkbox" id="import-modal" className="modal-toggle" />
+      <label htmlFor="import-modal" className="modal cursor-pointer">
+        <label className="modal-box relative" htmlFor="">
+          <h3 className="text-lg font-bold">Import Map</h3>
+          <p className="py-4">Paste an exported string then click "Import"</p>
+          <input
+            type="text"
+            placeholder="Paste here"
+            className="input w-full"
+            ref={importRef}
+          />
+          <div className="modal-action">
+            <label
+              htmlFor="import-modal"
+              className="btn"
+              onClick={() => {
+                handleImport(importRef.current.value)
+              }}
+            >
+              Import
+            </label>
+          </div>
+        </label>
+      </label>
     </>
   )
 }
-
-
 
 export default GridPage
