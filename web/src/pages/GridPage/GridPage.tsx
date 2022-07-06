@@ -12,6 +12,7 @@ import NumberInput from 'src/components/Menu/EditMode/NumberInput'
 import ColorPicker from 'src/components/Menu/EditMode/ColorPicker'
 import CharacterActions from 'src/components/Menu/NormalMode/CharacterActions'
 import { Character } from 'types/graphql'
+import CharacterAdd from 'src/components/Menu/NormalMode/CharacterAdd'
 
 /**
  * Tomorrows TODO:
@@ -46,7 +47,9 @@ const GridPage = () => {
   const dimensions = useWindowSize()
 
   const { loading, error, data } = useQuery(GET_CHARACTERS)
-  const charsData: Character[] = data?.characters
+  const charsDataArr: Character[] = data?.characters
+
+  const [charsData, setCharsData] = useState({})
 
   const [stickyChar, setStickyChar] = useState('')
   const [currChar, setCurrChar] = useState('')
@@ -74,20 +77,16 @@ const GridPage = () => {
   const scaleBy = 1.1
 
   useEffect(() => {
-    charsData?.forEach(char => {
-      setCharsInfo((prevState) => {
-        let newState = {...prevState}
+    charsDataArr?.forEach((char) => {
+      setCharsData((prevState) => {
+        let newState = { ...prevState }
         newState[char.name] = {
-          q: 0,
-          r: 0,
-          s: 0,
-          hp: char.hp,
-          stats: char
+          ...char,
         }
 
         return newState
       })
-    });
+    })
   }, [loading])
 
   // Taken from https://konvajs.org/docs/sandbox/Zooming_Relative_To_Pointer.html
@@ -181,8 +180,6 @@ const GridPage = () => {
 
   const handleCharClick = (e: any, name: string) => {
     if (e.evt.which === 1) {
-      console.log('Left mouse button clicked')
-
       setStickyChar(name)
     }
     if (e.evt.which === 3) {
@@ -199,13 +196,12 @@ const GridPage = () => {
     if (value < 0) {
       setCharsInfo((prevState) => {
         let newState = {
-          ...prevState
+          ...prevState,
         }
         newState[stickyChar].hp = Math.max(0, currHP + value)
 
         return newState
       })
-
     } else {
       setCharsInfo((prevState) => {
         let newState = {
@@ -216,6 +212,34 @@ const GridPage = () => {
         return newState
       })
     }
+  }
+
+  const handleAddCharacter = (name: string) => {
+    setCharsInfo((prevState) => {
+      const char = charsData[name]
+
+      let newState = { ...prevState }
+
+      if (!char) {
+        return newState
+      }
+
+      let newName = name
+
+      if (!char.isPlayer) {
+        newName = `${name}#${npcTagGen(4)}`
+      }
+
+      newState[newName] = {
+        q: 0,
+        r: 0,
+        s: 0,
+        hp: char.hp,
+        stats: { ...char, name: newName },
+      }
+
+      return newState
+    })
   }
 
   let currCharInfo: CharInfo
@@ -237,15 +261,15 @@ const GridPage = () => {
 
       <div className="w-screen h-screen grid grid-cols-4">
         <Stage
-          width={widthMod}
-          height={heightMod}
+          width={widthMod || 0}
+          height={heightMod || 0}
           className="col-span-3"
           draggable={toolMode === TOOLS.pan}
           onWheel={handleScroll}
           scaleX={scaleX}
           scaleY={scaleY}
-          offsetX={-widthMod / 2}
-          offsetY={-heightMod / 2}
+          offsetX={(-widthMod / 2) || 0}
+          offsetY={(-heightMod / 2) || 0}
           onMouseDown={() => setMouseDown(true)}
           onMouseUp={() => {
             setMouseDown(false)
@@ -290,8 +314,14 @@ const GridPage = () => {
             }`}
           >
             <div className="collapse-content">
+              {!currCharInfo && (
+                <CharacterAdd
+                  characterDataArr={charsDataArr}
+                  onAdd={handleAddCharacter}
+                />
+              )}
               {currCharInfo && <CharacterCard charInfo={currCharInfo} />}
-              {currCharInfo && currCharInfo.stats.name === stickyChar && (
+              {currCharInfo?.stats.name === stickyChar && (
                 <>
                   <div className="divider" />
                   <CharacterActions onApply={handleHpChange} />
@@ -336,6 +366,14 @@ const GridPage = () => {
       </div>
     </>
   )
+}
+
+function npcTagGen(length: number) {
+  const start = 2
+
+  return Math.random()
+    .toString()
+    .substring(start, start + length)
 }
 
 export default GridPage
